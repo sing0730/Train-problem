@@ -67,7 +67,7 @@ public class Graph {
 	}
 
 	/*
-	 * This method is to find the number of route with max stop. will reture the number of route when current stop is equal to exact stop
+	 * This method is to find the number of route with exact stop. will return the number of route when current stop is equal to exact stop
 	 */
 	
 	private int findNumOfRouteMethodWithExactStop(Town startTown, Town endTown, int maxStop, int currentStop) {
@@ -100,7 +100,7 @@ public class Graph {
 	}
 	
 	/*
-	 * This method is to find the number of route with max stop. will reture the number of route when current stop is equal to max stop
+	 * This method is to find the number of route with max stop. will return the number of route when current stop is equal to max stop
 	 */
 
 	private int findNumOfRouteMethodWithMaxStop(Town startTown, Town endTown, int maxStop, int currentStop) {
