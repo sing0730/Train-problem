@@ -5,7 +5,6 @@ import java.util.Map.Entry;
 
 public class Graph {
 	private HashMap<String, Town> towns = new HashMap<String, Town>();
-	private ArrayList<Integer> distanceAL = new ArrayList<Integer>();
 
 	public void addTown(Town town) {
 		this.towns.put(town.getTownName(), town);
@@ -67,6 +66,10 @@ public class Graph {
 
 	}
 
+	/*
+	 * This method is to find the number of route with max stop. will reture the number of route when current stop is equal to exact stop
+	 */
+	
 	private int findNumOfRouteMethodWithExactStop(Town startTown, Town endTown, int maxStop, int currentStop) {
 		int numOfRoute = 0;
 		if (towns.containsKey(startTown.getTownName()) && towns.containsKey(endTown.getTownName())) {
@@ -76,9 +79,6 @@ public class Graph {
 			HashMap<String, Route> routes = this.towns.get(startTown.getTownName()).getRouteInTown();
 
 			for (Entry<String, Route> route : routes.entrySet()) {
-				// System.out.print(route.getValue().getStartTown().getTownName());
-				// System.out.print("(Current Stop: " + currentStop + ")");
-				// System.out.print(" --> ");
 				if ((!route.getValue().getEndTown().getTownName().equals(endTown.getTownName())
 						&& currentStop < maxStop) || currentStop < maxStop) {
 					numOfRoute += findNumOfRouteMethodWithExactStop(route.getValue().getEndTown(), endTown, maxStop,
@@ -87,9 +87,6 @@ public class Graph {
 				}
 				if ((route.getValue().getEndTown().getTownName().equals(endTown.getTownName())
 						&& currentStop == maxStop)) {
-
-					// System.out.println(route.getValue().getEndTown().getTownName());
-					// System.out.println("Current Stop: " + currentStop);
 					numOfRoute++;
 
 				}
@@ -99,10 +96,12 @@ public class Graph {
 			System.out.println("NO SUCH ROUTE");
 			System.exit(0);
 		}
-		// System.out.println();
-		// System.out.println("numOfRoute: " + numOfRoute);
 		return numOfRoute;
 	}
+	
+	/*
+	 * This method is to find the number of route with max stop. will reture the number of route when current stop is equal to max stop
+	 */
 
 	private int findNumOfRouteMethodWithMaxStop(Town startTown, Town endTown, int maxStop, int currentStop) {
 		int numOfRoute = 0;
@@ -118,17 +117,12 @@ public class Graph {
 			HashMap<String, Route> routes = this.towns.get(startTown.getTownName()).getRouteInTown();
 
 			for (Entry<String, Route> route : routes.entrySet()) {
-				// System.out.print(route.getValue().getStartTown().getTownName());
-				// System.out.print(" --> ");
 				if (!route.getValue().getEndTown().getTownName().equals(endTown.getTownName())) {
 
 					numOfRoute += findNumOfRouteMethodWithMaxStop(route.getValue().getEndTown(), endTown, maxStop,
 							currentStop + 1);
 
 				} else {
-					// System.out.print(route.getValue().getEndTown().getTownName());
-					// System.out.println("numOfRoute: " + numOfRoute);
-					// System.out.println("Current Stop: " + currentStop);
 					numOfRoute++;
 				}
 			}
@@ -137,45 +131,47 @@ public class Graph {
 			System.out.println("NO SUCH ROUTE");
 			System.exit(0);
 		}
-		// System.out.println();
-		// System.out.println("return: " + numOfRoute);
 		return numOfRoute;
 	}
 
 	public int findShortestRoute(Town startTown, Town endTown) {
-        return findShortestRouteMethod(startTown, endTown, 0, 0);
+		return findShortestRouteMethod(startTown, endTown, 0, 0);
 	}
 
-	public int findShortestRouteMethod(Town startTown, Town endTown, int distance, int sdistance) {
+	/*
+	 * This method is to find the shortest route. The method will set every current
+	 * town to be visited to avoid the endless route. It will compare the current
+	 * distance with lastest shortest distance to get the shortest distance.
+	 */
+	private int findShortestRouteMethod(Town startTown, Town endTown, int distance, int sdistance) {
+		// set current down to visited
 		startTown.setVistited(true);
-//		System.out.println("Loop: " + i);
-//		System.out.println("Start Town: " + startTown.getTownName());
-//		System.out.println("End Town: " + endTown.getTownName());
-//		System.out.println("distance: " + distance);
-//		System.out.println("sdistance: " + sdistance);
 		if (towns.containsKey(startTown.getTownName()) && towns.containsKey(endTown.getTownName())) {
-
+			// Get all route in current town in hashmap
 			HashMap<String, Route> routes = this.towns.get(startTown.getTownName()).getRouteInTown();
-			// System.out.println(routes.size());
 			for (Entry<String, Route> route : routes.entrySet()) {
-//				System.out.print(route.getValue().getStartTown().getTownName());
-//				System.out.print(" --> ");
+
+				// add the distance if find the lastest town or non visited town
 				if (route.getValue().getEndTown().getTownName().equals(endTown.getTownName())
 						|| !route.getValue().getEndTown().getVistited()) {
 					distance += route.getValue().getDistance();
 				}
-//				System.out.print(route.getValue().getEndTown().getTownName());
-//
-//				System.out.println();
+
+				// check if current town is the last town
 				if (route.getValue().getEndTown().getTownName().equals(endTown.getTownName())) {
-					System.out.println();
+					// check the current distance is smaller than shortest distance found before
 					if (distance < sdistance || sdistance == 0) {
 						sdistance = distance;
 					}
+					// reset the town to non visit town
 					startTown.setVistited(false);
+					// return the shortest distance
 					return sdistance;
+					// if current town is non visited
 				} else if (!route.getValue().getEndTown().getVistited()) {
+					// find the distance in next town
 					sdistance = findShortestRouteMethod(route.getValue().getEndTown(), endTown, distance, sdistance);
+					// Reset the distance to pervious before go in next of the loop
 					distance -= route.getValue().getDistance();
 				}
 
@@ -186,31 +182,37 @@ public class Graph {
 
 	}
 
-	public int findAllRouteWithLimit (Town startTown, Town endTown, int maxDistance) {
-		return findAllRouteWithLimitMethod( startTown,  endTown, maxDistance, 0) ;
+	public int findAllRouteWithLimit(Town startTown, Town endTown, int maxDistance) {
+		return findAllRouteWithLimitMethod(startTown, endTown, maxDistance, 0);
 	}
-	
+
+	/*
+	 * This method is to find the total number of route with a max distance. It will keep finding the route of next town if the current distance is smaller than max distance.
+	 */
 	private int findAllRouteWithLimitMethod(Town startTown, Town endTown, int maxDistance, int currentDistance) {
 		int numOfRoute = 0;
 		if (towns.containsKey(startTown.getTownName()) && towns.containsKey(endTown.getTownName())) {
+			// Get all route in current town in hashmap
 			HashMap<String, Route> routes = this.towns.get(startTown.getTownName()).getRouteInTown();
 			for (Entry<String, Route> route : routes.entrySet()) {
+				// add the distance of current route to current distance
 				currentDistance += route.getValue().getDistance();
-				if (currentDistance < maxDistance){
-//					System.out.print(route.getValue().getStartTown().getTownName());
-//					System.out.print(" --> ");
+				// check if still smaller than max distance
+				if (currentDistance < maxDistance) {
+					// check if the last down
 					if (!route.getValue().getEndTown().getTownName().equals(endTown.getTownName())) {
+						// keep finding route of next town
 						numOfRoute += findAllRouteWithLimitMethod(route.getValue().getEndTown(), endTown, maxDistance,
 								currentDistance);
+						// Reset the distance to pervious before go in next of the loop
 						currentDistance -= route.getValue().getDistance();
 					} else {
-//						System.out.println(route.getValue().getEndTown().getTownName());
-//						System.out.println("TotalDistance: " + currentDistance);
+						// the total number of route + 1 if it is the last down and current distance is smaller than max distance
 						numOfRoute++;
 						numOfRoute += findAllRouteWithLimitMethod(route.getValue().getEndTown(), endTown, maxDistance,
 								currentDistance);
 					}
-				}else {
+				} else {
 					currentDistance -= route.getValue().getDistance();
 				}
 			}
